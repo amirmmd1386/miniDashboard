@@ -1,4 +1,9 @@
+@font-face {
+  font-family: vasir;
+  src: url(assets/css/Tanha.woff);
+}
 body {
+  font-family: vasir ;
   background-color: rgb(0, 0, 12);
 }
 

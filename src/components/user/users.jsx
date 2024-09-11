@@ -5,24 +5,20 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Toast } from "../../assets/js/sweatAlert";
 import { jsAxios } from "../../assets/js/jpaxios";
+import alerts from "../../alert/sweatalert";
 const User = (props) => {
-    const deleteHandler = (userId) => {
-        Swal.fire({
-            title: "مطمئنی؟",
-            text: "برگشت اطلاعات امکان پذیر نیست!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "gray",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "بله مطمئن هستم",
-            cancelButtonText: "لغو"
-        }).then((result) => {
-            if (result.isConfirmed) {
+    const { QuesAlert } = props
+    const [users, setUsers] = useState([])
+    const [Mainusers, setMainUsers] = useState([])
+    const deleteHandler = async (userId) => {
+        QuesAlert("مطمئنی", "راه برگشت برای کاربر وجود نداره؟", "warning", true).then(res => {
+            if (res.isConfirmed) {
                 axios.delete(`https://jsonplaceholder.typicode.com/users/${userId}`).then(
                     res => {
                         if (res.status === 200) {
-                            let newListUsers = users.filter(u => u.id !== userId)
+                            let newListUsers = Mainusers.filter(u => u.id !== userId)
                             setUsers(newListUsers)
+                            setMainUsers(newListUsers)
                             Toast.fire({
                                 icon: "success",
                                 title: "فایل شما حذف شد"
@@ -35,14 +31,11 @@ const User = (props) => {
                         }
                     }
                 )
-
             }
-        });
+        })
     }
-    const [users, setUsers] = useState([])
-    const [Mainusers, setMainUsers] = useState([])
-     useEffect(() => {
-       const getUser = jsAxios('/users').then(
+    useEffect(() => {
+        const getUser = jsAxios('/users').then(
             res => {
                 setUsers(res.data)
                 setMainUsers(res.data)
@@ -50,7 +43,7 @@ const User = (props) => {
         ).catch((err) => console.log(err))
     }, [])
     const handleSearch = (e) => {
-        
+
         setUsers(Mainusers.filter(c => c.username.toUpperCase().includes(e.target.value.toUpperCase())))
     }
     return (
@@ -83,7 +76,6 @@ const User = (props) => {
                                         <i onClick={() => deleteHandler(user.id)} className="fa fa-trash-o hover-white"></i>
                                         <Link to={`user/add/${user.id}`}>
                                             <i className="fa fa-pencil-square-o mx-2 hover-white text-light "></i>
-
                                         </Link>
                                     </td>
                                     <td>{user.email}</td>
@@ -99,10 +91,13 @@ const User = (props) => {
                 </div>
 
             ) : (
-                <p className="h2 m-2 mt-5 bg-dark p-3 rounded-3 text-center ">....در حالی مجع آوری اطلاعات صبر کنید</p>
+                <p className="h2 m-2 mt-5 bg-dark p-3 rounded-3 text-center ">
+                    <div className="spinner-border text-muted"></div>
+                </p>
 
             )}
         </>
     )
 }
-export default User
+
+export default alerts(User)
